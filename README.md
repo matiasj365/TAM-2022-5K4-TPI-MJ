@@ -1,4 +1,4 @@
-# Tecnologías de Desarrollo de Aplicaciones Moviles - 2022 - 5k4
+# Tecnologías de Desarrollo de Aplicaciones Moviles - 2022 - 5k4.
 ## Aplicación Android para Control de Alarma
 * Alumno:  Jarab, Damián Matías;  44.157  
 * Legajo Nº: 44.157
