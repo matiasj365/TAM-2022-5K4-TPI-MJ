@@ -1,4 +1,4 @@
-package ar.edu.frc.utn.tam.mj.devicecontrol;
+package ar.edu.frc.utn.tam.mj.devicecontrolapp;
 
 import org.junit.Test;
 
