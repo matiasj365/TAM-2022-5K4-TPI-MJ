@@ -11,19 +11,22 @@ import ar.edu.frc.utn.tam.mj.devicecontrolapp.controller.VolleyHelper;
 import ar.edu.frc.utn.tam.mj.devicecontrolapp.controller.devices.DeviceConstants;
 import ar.edu.frc.utn.tam.mj.devicecontrolapp.controller.devices.DeviceHandler;
 import ar.edu.frc.utn.tam.mj.devicecontrolapp.controller.devices.DeviceHandlerFactory;
+import ar.edu.frc.utn.tam.mj.devicecontrolapp.controller.devices.sms.DeviceSmsReceiver;
 import ar.edu.frc.utn.tam.mj.devicecontrolapp.exceptions.DeviceControlAppException;
 import ar.edu.frc.utn.tam.mj.devicecontrolapp.model.User;
 import ar.edu.frc.utn.tam.mj.devicecontrolapp.view.UIConstants;
 
 public class DeviceControllApplication extends Application {
     User loggedUser;
-
+    private DeviceSmsReceiver receiver = new DeviceSmsReceiver();
     @Override
     public void onCreate() {
         try {
             super.onCreate();
             VolleyHelper.getInstance(this);
             AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
+            createNotificationChannel();
+
             initHandlers();
         } catch (DeviceControlAppException e) {
             e.printStackTrace();

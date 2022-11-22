@@ -3,53 +3,42 @@ package ar.edu.frc.utn.tam.mj.devicecontrolapp.controller.devices.sms;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Bundle;
+import android.provider.Telephony;
 import android.telephony.SmsMessage;
 import android.util.Log;
 
 import androidx.core.app.NotificationCompat;
+import androidx.core.app.NotificationManagerCompat;
 
 import ar.edu.frc.utn.tam.mj.devicecontrolapp.view.UIConstants;
 
 public class DeviceSmsReceiver extends BroadcastReceiver {
     private static final String TAG =
             DeviceSmsReceiver.class.getSimpleName();
-    public static final String pdu_type = "pdus";
+
+    @Override
     public void onReceive(Context context, Intent intent) {
-        // Get the SMS message.
-        Bundle bundle = intent.getExtras();
-        SmsMessage[] msgs;
-        String strMessage = "";
-        String format = bundle.getString("format");
-        // Retrieve the SMS message received.
-        Object[] pdus = (Object[]) bundle.get(pdu_type);
-        if (pdus != null) {
-            // Check the Android version.
-            boolean isVersionM =
-                    (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M);
-            // Fill the msgs array.
-            msgs = new SmsMessage[pdus.length];
-            for (int i = 0; i < msgs.length; i++) {
-                // Check Android version and use appropriate createFromPdu.
-                if (isVersionM) {
-                    // If Android version M or newer:
-                    msgs[i] = SmsMessage.createFromPdu((byte[]) pdus[i], format);
-                } else {
-                    // If Android version L or older:
-                    msgs[i] = SmsMessage.createFromPdu((byte[]) pdus[i]);
+        Log.d("", "Receiv");
+        if (intent.getAction().equals("android.provider.Telephony.SMS_RECEIVED")) {
+            if (Telephony.Sms.Intents.SMS_RECEIVED_ACTION.equals(intent.getAction())) {
+                for (SmsMessage smsMessage : Telephony.Sms.Intents.getMessagesFromIntent(intent)) {
+                    String messageBody = smsMessage.getMessageBody();
+                    sendNotification(context, messageBody);
                 }
-                // Build the message to show.
-                strMessage += "SMS from " + msgs[i].getOriginatingAddress();
-                strMessage += " :" + msgs[i].getMessageBody() + "\n";
-                // Log and display the SMS message.
-                Log.d(TAG, "onReceive: " + strMessage);
-                NotificationCompat.Builder builder = new NotificationCompat.Builder(context.getApplicationContext(), UIConstants.NOTIFICATIONS_CHANNEL)
-                        .setSmallIcon(androidx.constraintlayout.widget.R.drawable.notification_template_icon_bg)
-                        .setContentTitle("Mensaje de Alarma")
-                        .setContentText(strMessage)
-                        .setPriority(NotificationCompat.PRIORITY_DEFAULT);
             }
         }
+    }
+
+    public void sendNotification(Context context, String message) {
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(context.getApplicationContext(), UIConstants.NOTIFICATIONS_CHANNEL)
+                .setSmallIcon(androidx.constraintlayout.widget.R.drawable.notification_template_icon_bg)
+                .setContentTitle("Mensaje de Alarma")
+                .setContentText(message)
+                .setPriority(NotificationCompat.PRIORITY_MAX);
+        NotificationManagerCompat notificationManager = NotificationManagerCompat.from(context);
+        notificationManager.notify(Long.valueOf(System.currentTimeMillis()).intValue(), builder.build());
     }
 }
