@@ -50,4 +50,7 @@ public interface DeviceDao {
     @Query("SELECT * FROM device WHERE smsPhoneNumber = :smsPhoneNumber LIMIT 1")
     Device findBySmsPhoneNumber(long smsPhoneNumber);
 
+    @Query("SELECT * FROM device WHERE deviceId = :deviceId LIMIT 1")
+    Device findByDeviceId(int deviceId);
+
 }

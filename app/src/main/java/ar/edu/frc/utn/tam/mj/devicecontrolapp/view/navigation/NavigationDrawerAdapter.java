@@ -11,6 +11,7 @@ import android.widget.TextView;
 
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.room.Database;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -19,6 +20,8 @@ import java.util.List;
 import ar.edu.frc.utn.tam.mj.devicecontrolapp.R;
 import ar.edu.frc.utn.tam.mj.devicecontrolapp.controller.Result;
 import ar.edu.frc.utn.tam.mj.devicecontrolapp.model.Device;
+import ar.edu.frc.utn.tam.mj.devicecontrolapp.persistence.AppDatabase;
+import ar.edu.frc.utn.tam.mj.devicecontrolapp.persistence.DeviceDao;
 import ar.edu.frc.utn.tam.mj.devicecontrolapp.view.DesktopActivity;
 import ar.edu.frc.utn.tam.mj.devicecontrolapp.view.UIConstants;
 import ar.edu.frc.utn.tam.mj.devicecontrolapp.view.UIUtils;
@@ -95,6 +98,7 @@ public class NavigationDrawerAdapter extends RecyclerView.Adapter<NavigationDraw
         fragment.setArguments(bundle);
         activity.getSupportFragmentManager().beginTransaction().
                 replace(R.id.fragment_desktop, fragment).addToBackStack(null).commit();
+        activity.getSupportActionBar().setTitle(device.getName());
 
     }
 

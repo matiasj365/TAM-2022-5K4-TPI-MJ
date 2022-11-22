@@ -1,0 +1,16 @@
+- Home
+	- Request Permissions
+	- AutoLogin
+	- 
+-DeviceFragment
+	- Panic - LongPress
+	- DeviceEventRecyclerView (LiveData)
+	- Arm Now/Arm Delay
+- ABM Devices
+	- Datos
+		- Permitir Notificación SMS
+		- Permitir Notificación API
+		- Actualizar Numero de Telefono
+- ListarEventos	
+- Notificaciones PUSH
+- Widget

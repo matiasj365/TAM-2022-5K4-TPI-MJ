@@ -1,5 +1,6 @@
 package ar.edu.frc.utn.tam.mj.devicecontrolapp.view.device;
 
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -9,10 +10,13 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.Spinner;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.room.Database;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,7 +30,11 @@ import ar.edu.frc.utn.tam.mj.devicecontrolapp.databinding.FragmentDeviceBinding;
 import ar.edu.frc.utn.tam.mj.devicecontrolapp.exceptions.DeviceControlAppException;
 import ar.edu.frc.utn.tam.mj.devicecontrolapp.exceptions.DeviceHandlerException;
 import ar.edu.frc.utn.tam.mj.devicecontrolapp.model.Device;
+import ar.edu.frc.utn.tam.mj.devicecontrolapp.persistence.AppDatabase;
+import ar.edu.frc.utn.tam.mj.devicecontrolapp.persistence.DeviceDao;
 import ar.edu.frc.utn.tam.mj.devicecontrolapp.view.UIConstants;
+import ar.edu.frc.utn.tam.mj.devicecontrolapp.view.UIUtils;
+import ar.edu.frc.utn.tam.mj.devicecontrolapp.view.navigation.NavigationDrawerItem;
 
 public class DeviceFragment extends Fragment {
 
@@ -63,6 +71,7 @@ public class DeviceFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 imageView2.setImageResource(R.drawable.disarmed);
+
                 doDisarm();
             }
         });
@@ -89,6 +98,7 @@ public class DeviceFragment extends Fragment {
                 device = (Device) b.getSerializable(UIConstants.DEVICE);
             }
         }
+
         Spinner spinner = binding.spServiceClass;
         loadServiceClassSpinner();
         spinnerArrayAdapter = new ArrayAdapter<String>(this.getActivity().getApplicationContext(),
@@ -120,26 +130,43 @@ public class DeviceFragment extends Fragment {
 
             }
         });
-
+    //loadLastUsedDevice();
         return root;
     }
+
     ArrayAdapter<String> spinnerArrayAdapter;
     List<String> serviceClassList = new ArrayList<>();
+
+    public void loadLastUsedDevice() {
+        SharedPreferences sp = UIUtils.getSharedPreferences(getActivity().getApplicationContext());
+        int lastDeviceId = sp.getInt(UIConstants.SP_LAST_DEVICE_ID, 0);
+        if (lastDeviceId != 0) {
+            DeviceDao deviceDao = AppDatabase.getDatabase(getActivity().getApplicationContext()).deviceDao();
+            device = deviceDao.findByDeviceId(lastDeviceId);
+            if(device!=null)
+                ((AppCompatActivity)getActivity().getApplicationContext()).getSupportActionBar().setTitle(device.getName());
+        }
+    }
 
     public void loadServiceClassSpinner() {
 
         //serviceClassList.clear();
         //if (device != null && device.isServiceModeAllowed(DeviceConstants.SERVICE_MODE_API))
-            serviceClassList.add("Modo Internet");
+        serviceClassList.add("Modo Internet");
 //        if (device != null && device.isServiceModeAllowed(DeviceConstants.SERVICE_MODE_SMS))
-            serviceClassList.add("Modo SMS");
+        serviceClassList.add("Modo SMS");
 //        if (device != null && device.isServiceModeAllowed(DeviceConstants.SERVICE_MODE_DUMMY))
-            serviceClassList.add("Modo DUMMY");
+        serviceClassList.add("Modo DUMMY");
     }
 
     private void doArm() {
         try {
-            handler.arm(device.getGizwitzDeviceId(),device.getSmsPhoneNumber(), DeviceControlDTORequest.CONTROL_ARM_NOW);
+            if (device == null) {
+                Toast.makeText(this.getActivity().getApplicationContext(), "Seleccionar Dispositivo", Toast.LENGTH_LONG).show();
+                return;
+            }
+            handler.arm(device.getGizwitzDeviceId(), device.getSmsPhoneNumber(), DeviceControlDTORequest.CONTROL_ARM_NOW);
+            Toast.makeText(this.getActivity().getApplicationContext(), "Mensaje Enviado", Toast.LENGTH_LONG).show();
         } catch (DeviceHandlerException e) {
             e.printStackTrace();
         }
@@ -147,7 +174,12 @@ public class DeviceFragment extends Fragment {
 
     private void doHomeArm() {
         try {
-            handler.homeArm(device.getGizwitzDeviceId(),device.getSmsPhoneNumber());
+            if (device == null) {
+                Toast.makeText(this.getActivity().getApplicationContext(), "Seleccionar Dispositivo", Toast.LENGTH_LONG).show();
+                return;
+            }
+            handler.homeArm(device.getGizwitzDeviceId(), device.getSmsPhoneNumber());
+            Toast.makeText(this.getActivity().getApplicationContext(), "Mensaje Enviado", Toast.LENGTH_LONG).show();
         } catch (DeviceHandlerException e) {
             e.printStackTrace();
         }
@@ -155,7 +187,12 @@ public class DeviceFragment extends Fragment {
 
     private void doDisarm() {
         try {
-            handler.disarm(device.getGizwitzDeviceId(),device.getSmsPhoneNumber());
+            if (device == null) {
+                Toast.makeText(this.getActivity().getApplicationContext(), "Seleccionar Dispositivo", Toast.LENGTH_LONG).show();
+                return;
+            }
+            handler.disarm(device.getGizwitzDeviceId(), device.getSmsPhoneNumber());
+            Toast.makeText(this.getActivity().getApplicationContext(), "Mensaje Enviado", Toast.LENGTH_LONG).show();
         } catch (DeviceHandlerException e) {
             e.printStackTrace();
         }
@@ -164,7 +201,12 @@ public class DeviceFragment extends Fragment {
 
     private void doPanic() {
         try {
-            handler.panic(device.getGizwitzDeviceId(),device.getSmsPhoneNumber());
+            if (device == null) {
+                Toast.makeText(this.getActivity().getApplicationContext(), "Seleccionar Dispositivo", Toast.LENGTH_LONG).show();
+                return;
+            }
+            handler.panic(device.getGizwitzDeviceId(), device.getSmsPhoneNumber());
+            Toast.makeText(this.getActivity().getApplicationContext(), "Mensaje Enviado", Toast.LENGTH_LONG).show();
         } catch (DeviceHandlerException e) {
             e.printStackTrace();
         }

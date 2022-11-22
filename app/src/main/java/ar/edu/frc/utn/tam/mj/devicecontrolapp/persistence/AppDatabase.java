@@ -33,7 +33,7 @@ public abstract class AppDatabase extends RoomDatabase {
             instance = Room.databaseBuilder(context.getApplicationContext(),
                     AppDatabase.class,
                     "DeviceControlAppDatabase").allowMainThreadQueries().build();
-            loadInitialData();
+           // loadInitialData();
         }
         return instance;
     }

@@ -20,7 +20,7 @@ public interface DeviceEventDao {
     void insertAll(List<DeviceEvent> deviceEvents);
 
     @Insert
-    void insert(Device devices);
+    void insert(DeviceEvent devices);
 
     @Delete
     void delete(DeviceEvent deviceEvent);

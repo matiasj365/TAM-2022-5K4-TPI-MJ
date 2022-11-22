@@ -4,16 +4,17 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.os.Build;
-import android.os.Bundle;
 import android.provider.Telephony;
 import android.telephony.SmsMessage;
 import android.util.Log;
 
-import androidx.core.app.NotificationCompat;
-import androidx.core.app.NotificationManagerCompat;
-
+import ar.edu.frc.utn.tam.mj.devicecontrolapp.model.Device;
+import ar.edu.frc.utn.tam.mj.devicecontrolapp.model.DeviceEvent;
+import ar.edu.frc.utn.tam.mj.devicecontrolapp.persistence.AppDatabase;
+import ar.edu.frc.utn.tam.mj.devicecontrolapp.persistence.DeviceDao;
+import ar.edu.frc.utn.tam.mj.devicecontrolapp.persistence.DeviceEventDao;
 import ar.edu.frc.utn.tam.mj.devicecontrolapp.view.UIConstants;
+import ar.edu.frc.utn.tam.mj.devicecontrolapp.view.UIUtils;
 
 public class DeviceSmsReceiver extends BroadcastReceiver {
     private static final String TAG =
@@ -26,19 +27,30 @@ public class DeviceSmsReceiver extends BroadcastReceiver {
             if (Telephony.Sms.Intents.SMS_RECEIVED_ACTION.equals(intent.getAction())) {
                 for (SmsMessage smsMessage : Telephony.Sms.Intents.getMessagesFromIntent(intent)) {
                     String messageBody = smsMessage.getMessageBody();
-                    sendNotification(context, messageBody);
+                    String messageFrom = smsMessage.getOriginatingAddress().substring(3);
+
+                    long phoneNumber = Long.valueOf(messageFrom);
+                    DeviceDao deviceDao = AppDatabase.getDatabase(context.getApplicationContext()).deviceDao();
+                    Device device = deviceDao.findBySmsPhoneNumber(phoneNumber);
+                    String notification=messageFrom + " - ";
+                    if(device!=null)
+                    {
+                        notification+=device.getName()+ " - ";
+                        updateDeviceEvents(context,device,smsMessage);
+                    }
+                    UIUtils.sendNotification(context, notification + messageBody);
                 }
             }
         }
     }
 
-    public void sendNotification(Context context, String message) {
-        NotificationCompat.Builder builder = new NotificationCompat.Builder(context.getApplicationContext(), UIConstants.NOTIFICATIONS_CHANNEL)
-                .setSmallIcon(androidx.constraintlayout.widget.R.drawable.notification_template_icon_bg)
-                .setContentTitle("Mensaje de Alarma")
-                .setContentText(message)
-                .setPriority(NotificationCompat.PRIORITY_MAX);
-        NotificationManagerCompat notificationManager = NotificationManagerCompat.from(context);
-        notificationManager.notify(Long.valueOf(System.currentTimeMillis()).intValue(), builder.build());
+    private void updateDeviceEvents(Context context,Device device, SmsMessage message) {
+        DeviceEvent deviceEvent=new DeviceEvent();
+        deviceEvent.setDeviceId(device.getDeviceId());
+        deviceEvent.setTimestamp(System.currentTimeMillis());
+        deviceEvent.setMessage(message.getMessageBody());
+        DeviceEventDao dao=AppDatabase.getDatabase(context.getApplicationContext()).deviceEventDao();
+        dao.insert(deviceEvent);
+
     }
 }

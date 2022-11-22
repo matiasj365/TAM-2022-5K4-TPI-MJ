@@ -4,6 +4,8 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.security.keystore.KeyGenParameterSpec;
 
+import androidx.core.app.NotificationCompat;
+import androidx.core.app.NotificationManagerCompat;
 import androidx.core.text.StringKt;
 import androidx.security.crypto.EncryptedSharedPreferences;
 import androidx.security.crypto.MasterKeys;
@@ -16,6 +18,19 @@ import ar.edu.frc.utn.tam.mj.devicecontrolapp.controller.devices.gizwitz.ErrorDT
 import ar.edu.frc.utn.tam.mj.devicecontrolapp.exceptions.DeviceControlAppException;
 
 public class UIUtils {
+
+    public static void sendNotification(Context context, String message)
+    {
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(context.getApplicationContext(), UIConstants.NOTIFICATIONS_CHANNEL)
+                .setSmallIcon(androidx.constraintlayout.widget.R.drawable.notification_template_icon_bg)
+                .setContentTitle("Mensaje de Alarma")
+                .setContentText(message)
+                .setPriority(NotificationCompat.PRIORITY_MAX);
+        NotificationManagerCompat notificationManager = NotificationManagerCompat.from(context);
+        notificationManager.notify(Long.valueOf(System.currentTimeMillis()).intValue(), builder.build());
+    }
+
+
 
     public static int getErrorMessage(DeviceControlAppException ex) {
         switch (ex.getErrorCode()) {
@@ -33,7 +48,9 @@ public class UIUtils {
     private static SharedPreferences sharedPreferences;
 
     public static void updateToolbar(String newTittle)
-    {}
+    {
+
+    }
     public static SharedPreferences getSharedPreferences(Context context) {
         if (sharedPreferences == null)
             loadSharedPreferences(context);
